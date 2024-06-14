@@ -1,9 +1,9 @@
 # Passphrase Filler
 
-Passphrase Filler is a Firefox extension that allows you to securely store and manage your user information, environment details, and passphrases. 
+Passphrase Filler is a Firefox extension that allows you to securely store and manage your user information, environment details, and passphrases.
 With this extension, you can easily add and remove cards containing your data, ensuring it remains accessible even after closing the browser.
 
-⚠️ **Data is not encrypted. Extension is made for development purposes and should be used mainly for testing with 
+⚠️ **Data is not encrypted. Extension is made for development purposes and should be used mainly for testing with
 fake users.**.
 
 ## Features
@@ -12,14 +12,14 @@ fake users.**.
   ⚠️ **Data is not encrypted.**
 - **Persistent Data**: Your data persists even after closing the browser.
 - **Manage Cards**: Add and remove cards containing user information.
+- **Autofill**: Add `matrix_id` of the user in `user` field and passphrase will be auto-filled without
+  a need for clicking on `Fill` button.
+- **Autocopy**: On reseting passphrase new passphrase will automatically overwrite old value within extension.
 
 ## Installation
 
-1. Download the extension from the Firefox Add-ons website.
-2. Open Firefox and navigate to `about:addons`.
-3. Click on the gear icon and select `Install Add-on From File...`.
-4. Choose the downloaded file and click `Open`.
-5. The extension will be installed and ready to use.
+1. Download the extension from the [Passphrase Filler Official website]() .
+2. Add extension to your chromium browser.
 
 ## Usage
 
@@ -40,5 +40,3 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
