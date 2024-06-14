@@ -87,7 +87,6 @@ const createCard = (index,card,additionalCard) => {
     removeButton.setAttribute('type', 'button');
     removeButton.setAttribute('id', `removeButton${index}`);
     removeButton.setAttribute('class', `removeButton`);
-    removeButton.innerText = `test_${index}`
 
     removeButton.addEventListener('click', async () => {
         wrapperDiv.removeChild(accountCart)
@@ -152,7 +151,7 @@ const createCard = (index,card,additionalCard) => {
     }
 })();
 
-plusBtn.addEventListener('click', e => {
+plusBtn.addEventListener('click', () => {
     createCard(cardIndex,false,true)
     cardIndex++
 })
