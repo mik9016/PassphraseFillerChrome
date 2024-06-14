@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Passphrase Filler",
+  "version": "1.0",
+  "description": "Automatically fills dropdowns on a specific website",
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "storage",
+    "clipboardRead"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "32": "icons/icon32.jpg"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

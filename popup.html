@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --dark: #262626;
+        --white: #FFF;
+      }
+
+      body {
+        width: 400px;
+        height: 350px;
+        color: #FFF;
+        background-color: var(--dark);
+        padding: 5px;
+        text-align: center;
+        font-family: "Inconsolata", monospace;
+        font-optical-sizing: auto;
+        font-style: normal;
+        font-variation-settings:
+                "wdth" 100;
+      }
+      input {
+        width: 70%;
+        background: var(--dark);
+        margin: 5px 0;
+        color: var(--white);
+        border: none;
+        font-family: "VT323", monospace;
+        font-weight: 400;
+        font-style: normal;
+      }
+      input:focus{
+        border: none;
+        outline: none;
+      }
+
+      h3{
+      text-align: center;
+      }
+
+      label{
+        color: var(--white);
+        width: 30%;
+      }
+      .accountCart{
+        border: 1px solid var(--white);
+        padding: 10px;
+        text-align: center;
+        margin: 1rem;
+        position: relative;
+      }
+      .inputWrapper{
+        display: flex;
+        text-align: start;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 4px;
+      }
+
+      button{
+        font-family: "VT323", monospace;
+        font-weight: 400;
+        font-style: normal;
+        width: 40%;
+        height: 2rem;
+        border: 1px solid var(--white);
+        background-color: var(--dark);
+        color: var(--white);
+        cursor: pointer;
+      }
+
+      button:hover{
+        background-color: var(--white);
+        color: var(--dark);
+        transition: .2s;
+      }
+
+      .removeButton{
+        position: absolute;
+        top: 0;
+        right: 1px;
+        width: 20%;
+        margin: 1rem;
+        text-align: center;
+
+      }
+      .plus{
+        margin-top: 2rem;
+        width: 2rem;
+      }
+
+    </style>
+  </head>
+  <body>
+    <h3>Passphrase Filler</h3>
+    <div id="wrapper">
+    </div>
+    <button type="button" id="plusBtn" class="plus" title="Add new entry">+</button>
+    <script src="popup.js"></script>
+  </body>
+</html>
+
