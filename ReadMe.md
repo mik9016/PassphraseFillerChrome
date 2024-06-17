@@ -18,7 +18,7 @@ fake users.**.
 
 ## Installation
 
-1. Download the extension from the [Passphrase Filler Official website]() .
+1. Download the extension from the [Passphrase Filler Official website](https://passphrasefiller.mgruszecki.com/) .
 2. Add extension to your chromium browser.
 
 ## Usage
