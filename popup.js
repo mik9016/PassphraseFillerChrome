@@ -1,4 +1,4 @@
-const CLOUD_URL = "YOUR_URL_HERE"; //user your JSON BLOB raw URL here
+const CLOUD_URL = "https://jsonblob.com/api/jsonBlob/1385183611648663552";
 const ENV_OPTIONS = ['Staging', 'Integration', 'Pre Prod', 'Prod'];
 const plusBtn = document.getElementById('plusBtn');
 let cardIndex = 0;
@@ -7,7 +7,6 @@ async function fetchTeamAccounts() {
     try {
         const response = await fetch(CLOUD_URL);
         const data = await response.json();
-        // Only allow strictly whitelisted environments except 'Prod'
         const allowedEnvs = ["Pre Prod", "Integration", "Staging"];
         return (data.team_accounts || []).filter(card =>
             allowedEnvs.includes(card.env)
@@ -26,7 +25,7 @@ const getAllStorageKeys = async () => {
     });
 };
 
-// ----------- NEW: Remove local duplicates of cloud cards -----------
+// Remove local duplicates of cloud cards
 async function cleanUpLocalDuplicates(teamAccounts) {
     const localCards = await chrome.storage.local.get();
     const removeKeys = [];
@@ -45,6 +44,15 @@ async function cleanUpLocalDuplicates(teamAccounts) {
     if (removeKeys.length > 0) {
         await chrome.storage.local.remove(removeKeys);
     }
+}
+
+// Robust save for all fields (env/user/pass)
+function robustSave(index, key, value) {
+    chrome.storage.local.get(['test_' + index], (intermediateCard) => {
+        let entry = intermediateCard['test_' + index] || { env: ENV_OPTIONS[0], user: '', pass: '' };
+        entry[key] = value;
+        chrome.storage.local.set({ ['test_' + index]: entry });
+    });
 }
 
 function createEnvDropdown(id, value, onChange) {
@@ -77,17 +85,7 @@ const createCard = (index, card, additionalCard) => {
 
     let envValue = card ? card.env : ENV_OPTIONS[0];
     const envDropdown = createEnvDropdown('env_' + index, envValue, (e) => {
-        const newEnv = e.target.value;
-        if (card) {
-            const x = { ...card, env: newEnv };
-            chrome.storage.local.set({ ['test_' + index]: x });
-        } else {
-            chrome.storage.local.get(['test_' + index], (intermediateCard) => {
-                const test = { ...intermediateCard };
-                test['test_' + index].env = newEnv;
-                chrome.storage.local.set({ ['test_' + index]: test['test_' + index] });
-            });
-        }
+        robustSave(index, 'env', e.target.value);
     });
 
     envWrapper.appendChild(envLabel);
@@ -114,20 +112,12 @@ const createCard = (index, card, additionalCard) => {
         inputElement.placeholder = input.placeholder;
         inputElement.value = input.value;
 
-        inputElement.addEventListener('keyup', async (e) => {
+        // Use 'input' event for live & paste updates
+        inputElement.addEventListener('input', (e) => {
             const innerKey = input.id.split('_')[0];
-            if (card) {
-                const x = { ...card };
-                x[innerKey] = e.target.value;
-                chrome.storage.local.set({ ['test_' + index]: x });
-            } else {
-                chrome.storage.local.get(['test_' + index], (intermediateCard) => {
-                    const test = { ...intermediateCard };
-                    test['test_' + index][innerKey] = e.target.value;
-                    chrome.storage.local.set({ ['test_' + index]: test['test_' + index] });
-                });
-            }
+            robustSave(index, innerKey, e.target.value);
         });
+
         inputWrapper.appendChild(label);
         inputWrapper.appendChild(inputElement);
         form.appendChild(inputWrapper);
@@ -140,7 +130,7 @@ const createCard = (index, card, additionalCard) => {
     button.textContent = 'Fill';
     button.className = 'fill-btn';
     button.addEventListener('click', () => {
-        const passphrase = card.pass;
+        const passphrase = card && card.pass ? card.pass : '';
         chrome.runtime.sendMessage({
             action: "fillDropdowns",
             passphrase: passphrase
