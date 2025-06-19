@@ -1,107 +1,181 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Passphrase Filler</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --dark: #262626;
-        --white: #FFF;
+      html, body {
+        width: 100vw;
+        min-width: 320px;
+        max-width: 400px;
+        margin: 0;
+        padding: 0;
+        background: #f6f8fa;
+        font-family: "Inconsolata", monospace !important;
+        font-size: 13px;
+        color: #232323;
+        overflow-x: hidden;
       }
-
-      body {
-        width: 400px;
-        height: 350px;
-        color: #FFF;
-        background-color: var(--dark);
-        padding: 5px;
+      h3 {
+        font-family: "Inconsolata", monospace !important;
+        font-weight: 700;
+        font-size: 1.5rem;
         text-align: center;
-        font-family: "Inconsolata", monospace;
-        font-optical-sizing: auto;
-        font-style: normal;
-        font-variation-settings:
-                "wdth" 100;
+        margin: 16px 0 12px 0;
+        letter-spacing: 0.7px;
       }
-      input {
-        width: 70%;
-        background: var(--dark);
-        margin: 5px 0;
-        color: var(--white);
-        border: none;
-        font-family: "VT323", monospace;
-        font-weight: 400;
-        font-style: normal;
-      }
-      input:focus{
-        border: none;
-        outline: none;
-      }
-
-      h3{
-      text-align: center;
-      }
-
-      label{
-        color: var(--white);
-        width: 30%;
-      }
-      .accountCart{
-        border: 1px solid var(--white);
-        padding: 10px;
-        text-align: center;
-        margin: 1rem;
-        position: relative;
-      }
-      .inputWrapper{
+      #wrapper {
         display: flex;
-        text-align: start;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding: 4px;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 12px;
+        align-items: stretch;
+        width: 98%;
+        margin-left: auto;
+        margin-right: auto;
       }
-
-      button{
-        font-family: "VT323", monospace;
-        font-weight: 400;
-        font-style: normal;
-        width: 40%;
-        height: 2rem;
-        border: 1px solid var(--white);
-        background-color: var(--dark);
-        color: var(--white);
+      .accountCart {
+        width: 100%;
+        border-radius: 17px;
+        background: #fff;
+        border: 2px solid #e0e6ef;
+        box-shadow: 0 2px 10px 0 #0001;
+        padding: 13px 13px 20px 13px;
+        position: relative;
+        margin: 0 auto;
+        box-sizing: border-box;
+      }
+      .cloudCard {
+        border: 2px solid #4088ef;
+        background: #f2f7ff;
+        color: #2166d1;
+      }
+      .cloudCard label,
+      .cloudCard input, .cloudCard select {
+        color: #2166d1 !important;
+      }
+      .cloudCard input, .cloudCard select {
+        background: #f2f7ff !important;
+        font-weight: 600;
+      }
+      .inputWrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        margin-bottom: 11px;
+        width: 100%;
+      }
+      label {
+        color: #29303b;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 3px;
+        margin-left: 1px;
+        letter-spacing: 0.01em;
+      }
+      input, select {
+        width: 100%;
+        max-width: 100%;
+        background: #f3f4f6;
+        color: #232323;
+        border: 1px solid #dde3eb;
+        border-radius: 11px;
+        font-family: inherit;
+        font-size: 13px;
+        padding: 7px 10px;
+        height: 34px;
+        transition: border 0.2s;
+        box-sizing: border-box;
+      }
+      input:read-only, .cloudCard input, .cloudCard select {
+        background: #f2f7ff !important;
+        color: #2166d1 !important;
+        border: 1px solid #c7dafc !important;
+        font-weight: 600;
+      }
+      input:focus, select:focus {
+        border: 1.5px solid #3376d1;
+        outline: none;
+        background: #e9f2fe;
+      }
+      .btn, .fill-btn {
+        font-family: inherit !important;
+        font-size: 1.08rem;
+        font-weight: 700;
+        border-radius: 21px !important;
+        width: 100%;
+        min-width: 80px;
+        padding: 10px 0;
+        margin-top: 8px;
+        background: #43be71;
+        color: #fff;
+        border: none;
+        box-shadow: 0 1px 7px #43be713a;
+        transition: background .17s, box-shadow .18s;
+        margin-bottom: 0;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+      }
+      .fill-btn:hover, .btn:focus {
+        background: #32995b !important;
+        color: #fff;
+        box-shadow: 0 3px 12px #2c964e38;
+      }
+      .removeButton {
+        position: absolute;
+        top: 15px;           /* <--- Change bottom: to top: */
+        right: 15px;
+        width: 34px;
+        height: 34px;
+        background: #fceeee;
+        border: none;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        box-shadow: 0 2px 8px #d8709342;
+        padding: 0;
+        margin: 0;
+        transition: background 0.13s;
         cursor: pointer;
       }
 
-      button:hover{
-        background-color: var(--white);
-        color: var(--dark);
-        transition: .2s;
+      .removeButton:hover {
+        background: #fdb7c5;
       }
-
-      .removeButton{
-        position: absolute;
-        top: 0;
-        right: 1px;
-        width: 20%;
-        margin: 1rem;
-        text-align: center;
-
+      .removeButton svg {
+        width: 18px;
+        height: 18px;
+        color: #fa6464;
       }
-      .plus{
-        margin-top: 2rem;
-        width: 2rem;
+      .plus {
+        background: #4088ef;
+        color: #fff;
+        font-size: 1.7rem;
+        width: 49px;
+        height: 49px;
+        border-radius: 50%;
+        border: none;
+        margin: 12px auto 10px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 8px #3376d120;
+        transition: background 0.15s;
+        cursor: pointer;
       }
-
+      .plus:hover {
+        background: #224ea6;
+      }
     </style>
   </head>
   <body>
     <h3>Passphrase Filler</h3>
-    <div id="wrapper">
-    </div>
+    <div id="wrapper"></div>
     <button type="button" id="plusBtn" class="plus" title="Add new entry">+</button>
     <script src="popup.js"></script>
   </body>
 </html>
-
