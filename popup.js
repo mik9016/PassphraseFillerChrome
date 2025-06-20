@@ -1,17 +1,26 @@
-const CLOUD_URL = "https://jsonblob.com/api/jsonBlob/1385183611648663552";
-const ENV_OPTIONS = ['Staging', 'Integration', 'Pre Prod', 'Prod'];
-const plusBtn = document.getElementById('plusBtn');
+import { createCloudCard, getCloudUrlFromStorage, ENV_OPTIONS, ALLOWED_CLOUD_ENVS } from './utils.js';
+
 let cardIndex = 0;
 
 async function fetchTeamAccounts() {
     try {
-        const response = await fetch(CLOUD_URL);
+        const url = await getCloudUrlFromStorage();
+        if (!url) {
+            const note = document.createElement('div');
+            note.textContent = "Cloud sync not configured. Running in local-only mode.";
+            note.style.color = "#999";
+            note.style.fontSize = "12px";
+            note.style.textAlign = "center";
+            document.getElementById('wrapper').prepend(note);
+            return [];
+        }
+        const response = await fetch(url);
         const data = await response.json();
-        const allowedEnvs = ["Pre Prod", "Integration", "Staging"];
         return (data.team_accounts || []).filter(card =>
-            allowedEnvs.includes(card.env)
+            ALLOWED_CLOUD_ENVS.includes(card.env)
         );
     } catch (e) {
+        console.error("Could not fetch team accounts:", e);
         return [];
     }
 }
@@ -19,39 +28,47 @@ async function fetchTeamAccounts() {
 const getAllStorageKeys = async () => {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get(null, (items) => {
-            if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
+            if (chrome.runtime.lastError) {
+                console.error('chrome.storage.local.get failed', chrome.runtime.lastError);
+                return reject(chrome.runtime.lastError);
+            }
             resolve(items);
         });
     });
 };
 
-// Remove local duplicates of cloud cards
 async function cleanUpLocalDuplicates(teamAccounts) {
-    const localCards = await chrome.storage.local.get();
-    const removeKeys = [];
-    for (const [key, card] of Object.entries(localCards)) {
-        if (!card || !card.user || !card.env) continue;
-        if (
-            teamAccounts.some(
-              acc =>
-                acc.user?.toLowerCase() === card.user?.toLowerCase() &&
-                acc.env === card.env
-            )
-        ){
-            removeKeys.push(key);
+    try {
+        const localCards = await chrome.storage.local.get();
+        const removeKeys = [];
+        for (const [key, card] of Object.entries(localCards)) {
+            if (!card || !card.user || !card.env) continue;
+            if (
+                teamAccounts.some(
+                    acc => acc.user?.toLowerCase() === card.user?.toLowerCase() &&
+                    acc.env === card.env
+                )
+            ) {
+                removeKeys.push(key);
+            }
         }
-    }
-    if (removeKeys.length > 0) {
-        await chrome.storage.local.remove(removeKeys);
+        if (removeKeys.length > 0) {
+            await chrome.storage.local.remove(removeKeys);
+        }
+    } catch (e) {
+        console.error('Failed to clean up local duplicates', e);
     }
 }
 
-// Robust save for all fields (env/user/pass)
 function robustSave(index, key, value) {
     chrome.storage.local.get(['test_' + index], (intermediateCard) => {
         let entry = intermediateCard['test_' + index] || { env: ENV_OPTIONS[0], user: '', pass: '' };
         entry[key] = value;
-        chrome.storage.local.set({ ['test_' + index]: entry });
+        chrome.storage.local.set({ ['test_' + index]: entry }, () => {
+            if (chrome.runtime.lastError) {
+                console.error(`Failed to save ${key} for test_${index}`, chrome.runtime.lastError);
+            }
+        });
     });
 }
 
@@ -70,13 +87,12 @@ function createEnvDropdown(id, value, onChange) {
     return select;
 }
 
-const createCard = (index, card, additionalCard) => {
+function createCard(index, card) {
     const accountCart = document.createElement('div');
     accountCart.className = 'accountCart';
     const form = document.createElement('form');
     form.id = 'dropdownForm' + index;
 
-    // ENVIRONMENT DROPDOWN
     const envWrapper = document.createElement('div');
     envWrapper.className = 'inputWrapper';
     const envLabel = document.createElement('label');
@@ -92,38 +108,31 @@ const createCard = (index, card, additionalCard) => {
     envWrapper.appendChild(envDropdown);
     form.appendChild(envWrapper);
 
-    // USER and PASSPHRASE INPUTS
     const inputs = [
-        { label: 'User', id: 'user_' + index, placeholder: 'Username', value: card ? card?.user : '' },
+        { label: 'Username', id: 'user_' + index, placeholder: 'Username', value: card ? card?.user : '' },
         { label: 'Passphrase', id: 'pass_' + index, placeholder: 'Paste Passphrase', value: card ? card?.pass : '' }
     ];
 
     inputs.forEach(input => {
         const inputWrapper = document.createElement('div');
         inputWrapper.className = 'inputWrapper';
-
         const label = document.createElement('label');
         label.htmlFor = input.id;
         label.textContent = input.label;
-
         const inputElement = document.createElement('input');
         inputElement.type = 'text';
         inputElement.id = input.id;
         inputElement.placeholder = input.placeholder;
         inputElement.value = input.value;
-
-        // Use 'input' event for live & paste updates
         inputElement.addEventListener('input', (e) => {
             const innerKey = input.id.split('_')[0];
             robustSave(index, innerKey, e.target.value);
         });
-
         inputWrapper.appendChild(label);
         inputWrapper.appendChild(inputElement);
         form.appendChild(inputWrapper);
     });
 
-    // Fill button
     const button = document.createElement('button');
     button.type = 'button';
     button.id = 'fillButton' + index;
@@ -137,7 +146,6 @@ const createCard = (index, card, additionalCard) => {
         });
     });
 
-    // Remove button
     const removeButton = document.createElement('button');
     removeButton.setAttribute('type', 'button');
     removeButton.setAttribute('id', `removeButton${index}`);
@@ -163,116 +171,119 @@ const createCard = (index, card, additionalCard) => {
     accountCart.appendChild(form);
     const wrapperDiv = document.getElementById('wrapper');
     wrapperDiv.appendChild(accountCart);
-};
-
-const createCloudCard = (card) => {
-    const accountCart = document.createElement('div');
-    accountCart.className = 'accountCart cloudCard';
-
-    const form = document.createElement('form');
-    form.className = 'cloudForm';
-
-    // ENVIRONMENT
-    const envWrapper = document.createElement('div');
-    envWrapper.className = 'inputWrapper';
-    const envLabel = document.createElement('label');
-    envLabel.textContent = 'Environment';
-    const envInput = document.createElement('input');
-    envInput.type = 'text';
-    envInput.readOnly = true;
-    envInput.value = card.env || '';
-    envInput.style.background = "#eef6fa";
-    envInput.style.color = "#555";
-    envInput.title = "Managed by Team (Cloud)";
-    envWrapper.appendChild(envLabel);
-    envWrapper.appendChild(envInput);
-    form.appendChild(envWrapper);
-
-    // USER, PASS
-    const fields = [
-        { label: 'User', value: card.user || '' },
-        { label: 'Passphrase', value: card.pass || '' }
-    ];
-    fields.forEach(field => {
-        const inputWrapper = document.createElement('div');
-        inputWrapper.className = 'inputWrapper';
-
-        const label = document.createElement('label');
-        label.textContent = field.label;
-
-        const inputElement = document.createElement('input');
-        inputElement.type = 'text';
-        inputElement.value = field.value;
-        inputElement.readOnly = true;
-        inputElement.style.background = "#eef6fa";
-        inputElement.style.color = "#555";
-        inputElement.title = "Managed by Team (Cloud)";
-
-        inputWrapper.appendChild(label);
-        inputWrapper.appendChild(inputElement);
-        form.appendChild(inputWrapper);
-    });
-
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = 'Fill';
-    button.className = 'fill-btn';
-    button.title = "Fill from Team (Cloud)";
-    button.addEventListener('click', () => {
-        const passphrase = card.pass;
-        chrome.runtime.sendMessage({
-            action: "fillDropdowns",
-            passphrase: passphrase
-        });
-    });
-    form.appendChild(button);
-
-    const note = document.createElement('div');
-    note.textContent = "Read-only: managed by your team (cloud)";
-    note.style.fontSize = "10px";
-    note.style.color = "#7a8aad";
-    note.style.marginTop = "4px";
-    note.style.textAlign = "center";
-    note.style.opacity = "0.77";
-    form.appendChild(note);
-
-    accountCart.appendChild(form);
-    const wrapperDiv = document.getElementById('wrapper');
-    wrapperDiv.appendChild(accountCart);
-};
+}
 
 (async () => {
     try {
         const wrapperDiv = document.getElementById('wrapper');
         wrapperDiv.innerHTML = "";
-
-        // --- CLEANUP DUPLICATES BEFORE RENDER ---
         const teamAccounts = await fetchTeamAccounts();
         await cleanUpLocalDuplicates(teamAccounts);
-
-        // 1. Render cloud cards
         teamAccounts.forEach(card => {
             createCloudCard(card);
         });
-
-        // 2. Load and render remaining local cards
         const allCards = await getAllStorageKeys();
         const allCardsKeys = Object.keys(allCards);
         if (allCardsKeys.length < 1) {
-            createCard(0, false, true);
+            createCard(0, false);
             cardIndex++;
         } else {
             for (const idx in allCards) {
                 const card = allCards[idx];
                 const cardNumber = +idx.split('_')[1];
-                createCard(cardNumber, card, false);
+                createCard(cardNumber, card);
                 cardIndex++;
             }
         }
-    } catch (error) {}
+    } catch (error) {
+        console.error('popup main render failed', error);
+    }
 })();
 
-plusBtn.addEventListener('click', () => {
-    createCard(cardIndex, false, true);
+document.getElementById('plusBtn').addEventListener('click', () => {
+    createCard(cardIndex, false);
     cardIndex++;
 });
+
+document.getElementById('settingsIcon').addEventListener('click', function() {
+    chrome.storage.local.get(['cloud_json_url'], function(data) {
+        document.getElementById('cloudUrlInput').value = data['cloud_json_url'] || '';
+        document.getElementById('settingsModal').style.display = 'block';
+    });
+});
+
+document.getElementById('settingsSaveBtn').addEventListener('click', function() {
+    const url = document.getElementById('cloudUrlInput').value.trim();
+    if (url) {
+        chrome.storage.local.set({ 'cloud_json_url': url }, () => {
+            if (chrome.runtime.lastError) {
+                console.error('Failed to save cloud URL', chrome.runtime.lastError);
+            }
+            document.getElementById('settingsModal').style.display = 'none';
+            location.reload();
+        });
+    } else {
+        chrome.storage.local.remove('cloud_json_url', () => {
+            if (chrome.runtime.lastError) {
+                console.error('Failed to remove cloud URL', chrome.runtime.lastError);
+            }
+            document.getElementById('settingsModal').style.display = 'none';
+            location.reload();
+        });
+    }
+});
+
+document.getElementById('settingsCancelBtn').addEventListener('click', function() {
+    document.getElementById('settingsModal').style.display = 'none';
+});
+
+document.getElementById('searchIcon').addEventListener('click', function() {
+  const bar = document.getElementById('searchBar');
+  bar.style.display = (bar.style.display === 'none' || !bar.style.display) ? 'flex' : 'none';
+  if (bar.style.display === 'flex') {
+    document.getElementById('searchInput').focus();
+  }
+});
+
+document.getElementById('searchInput').addEventListener('blur', function() {
+  setTimeout(() => {
+    document.getElementById('searchBar').style.display = "none";
+    document.getElementById('searchInput').value = "";
+  }, 130);
+});
+
+document.getElementById('searchGoBtn').addEventListener('click', handleSearch);
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+  if (e.key === "Enter") handleSearch();
+});
+
+function handleSearch() {
+  const searchValue = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (!searchValue) return;
+
+  const cards = document.querySelectorAll('.accountCart, .cloudCard');
+  let found = false;
+  cards.forEach(card => {
+    const labelNodes = card.querySelectorAll('label');
+    let userInput = null;
+    labelNodes.forEach((lbl) => {
+      if (lbl.textContent.trim().toLowerCase() === 'user') {
+        const nextInput = lbl.parentElement.querySelector('input');
+        if (nextInput) userInput = nextInput;
+      }
+    });
+    if (userInput && userInput.value.trim().toLowerCase() === searchValue) {
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.style.outline = "2.5px solid #39d1ad";
+      card.style.transition = "outline 0.15s";
+      setTimeout(() => { card.style.outline = ""; }, 1200);
+      found = true;
+    }
+  });
+  if (!found) {
+    document.getElementById('searchInput').style.background = "#fdb7c5";
+    setTimeout(() => {
+      document.getElementById('searchInput').style.background = "";
+    }, 650);
+  }
+}
