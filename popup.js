@@ -99,7 +99,7 @@ function createCard(index, card) {
     envLabel.htmlFor = 'env_' + index;
     envLabel.textContent = 'Environment';
 
-    let envValue = card ? card.env : ENV_OPTIONS[0];
+    let envValue = (card && typeof card.env === 'string') ? card.env : ENV_OPTIONS[0];
     const envDropdown = createEnvDropdown('env_' + index, envValue, (e) => {
         robustSave(index, 'env', e.target.value);
     });
@@ -108,9 +108,13 @@ function createCard(index, card) {
     envWrapper.appendChild(envDropdown);
     form.appendChild(envWrapper);
 
+    // --- Always default to "" if missing/undefined ---
+    const userValue = (card && typeof card.user === 'string') ? card.user : '';
+    const passValue = (card && typeof card.pass === 'string') ? card.pass : '';
+
     const inputs = [
-        { label: 'Username', id: 'user_' + index, placeholder: 'Username', value: card ? card?.user : '' },
-        { label: 'Passphrase', id: 'pass_' + index, placeholder: 'Paste Passphrase', value: card ? card?.pass : '' }
+        { label: 'Username', id: 'user_' + index, placeholder: 'Username', value: userValue },
+        { label: 'Passphrase', id: 'pass_' + index, placeholder: 'Paste Passphrase', value: passValue }
     ];
 
     inputs.forEach(input => {
@@ -139,7 +143,7 @@ function createCard(index, card) {
     button.textContent = 'Fill';
     button.className = 'fill-btn';
     button.addEventListener('click', () => {
-        const passphrase = card && card.pass ? card.pass : '';
+        const passphrase = passValue;
         chrome.runtime.sendMessage({
             action: "fillDropdowns",
             passphrase: passphrase
