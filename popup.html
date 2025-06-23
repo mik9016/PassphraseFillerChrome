@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-
     <div id="searchIcon" title="Search">
       <svg viewBox="0 0 24 24" style="width:20px;height:20px;">
         <circle cx="11" cy="11" r="7" stroke="#8a93a2" stroke-width="2" fill="none"/>
@@ -19,14 +18,12 @@
       <input id="searchInput" type="text" placeholder="Username">
       <button id="searchGoBtn" class="btn">Go</button>
     </div>
-
     <h3>Passphrase Filler</h3>
     <div id="settingsIcon" title="Settings">
       <svg viewBox="0 0 24 24">
         <path d="M19.43 12.98c.04-.32.07-.66.07-1s-.03-.68-.07-1l2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1a7.03 7.03 0 0 0-1.7-.98l-.38-2.65A.488.488 0 0 0 13 2h-4a.5.5 0 0 0-.5.42l-.38 2.65c-.63.25-1.21.59-1.76.98l-2.49-1a.488.488 0 0 0-.61.22l-2 3.46a.5.5 0 0 0 .12.64l2.11 1.65c-.04.32-.07.66-.07 1s.03.68.07 1l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.13.22.39.29.61.22l2.49-1c.55.39 1.13.73 1.76.98l.38 2.65c.05.28.26.42.5.42h4c.24 0 .45-.14.5-.42l.38-2.65c.63-.25 1.21-.59 1.7-.98l2.49 1c.23.09.48 0 .61-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/>
       </svg>
     </div>
-
     <div id="settingsModal" style="display:none;">
       <div class="modal-title">Cloud JSON URL</div>
       <input id="cloudUrlInput" type="text">
@@ -35,9 +32,9 @@
         <button id="settingsCancelBtn" class="btn cancel-btn">Cancel</button>
       </div>
     </div>
-
     <div id="wrapper"></div>
     <button type="button" id="plusBtn" class="plus" title="Add new entry">+</button>
-    <script type="module" src="popup.js"></script>
+    <script src="utils.js"></script>
+    <script src="popup.js"></script>
   </body>
 </html>

@@ -1,5 +1,3 @@
-import { createCloudCard, getCloudUrlFromStorage, ENV_OPTIONS, ALLOWED_CLOUD_ENVS } from './utils.js';
-
 let cardIndex = 0;
 
 async function fetchTeamAccounts() {
@@ -108,7 +106,6 @@ function createCard(index, card) {
     envWrapper.appendChild(envDropdown);
     form.appendChild(envWrapper);
 
-    // --- Always default to "" if missing/undefined ---
     const userValue = (card && typeof card.user === 'string') ? card.user : '';
     const passValue = (card && typeof card.pass === 'string') ? card.pass : '';
 
@@ -142,11 +139,21 @@ function createCard(index, card) {
     button.id = 'fillButton' + index;
     button.textContent = 'Fill';
     button.className = 'fill-btn';
-    button.addEventListener('click', () => {
-        const passphrase = passValue;
-        chrome.runtime.sendMessage({
-            action: "fillDropdowns",
-            passphrase: passphrase
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            if (tabs.length > 0) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    action: "fillDropdowns",
+                    passphrase: passValue
+                }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Error sending message:', chrome.runtime.lastError.message);
+                    }
+                });
+            } else {
+                console.error("No active tab found.");
+            }
         });
     });
 
@@ -155,6 +162,7 @@ function createCard(index, card) {
     removeButton.setAttribute('id', `removeButton${index}`);
     removeButton.setAttribute('class', `removeButton`);
     removeButton.addEventListener('click', async () => {
+        const wrapperDiv = document.getElementById('wrapper');
         wrapperDiv.removeChild(accountCart);
         await chrome.storage.local.remove(`test_${index}`);
     });
@@ -173,8 +181,7 @@ function createCard(index, card) {
     form.appendChild(button);
 
     accountCart.appendChild(form);
-    const wrapperDiv = document.getElementById('wrapper');
-    wrapperDiv.appendChild(accountCart);
+    document.getElementById('wrapper').appendChild(accountCart);
 }
 
 (async () => {
@@ -241,6 +248,7 @@ document.getElementById('settingsCancelBtn').addEventListener('click', function(
     document.getElementById('settingsModal').style.display = 'none';
 });
 
+// SEARCH BAR logic is unchanged from your working version.
 document.getElementById('searchIcon').addEventListener('click', function() {
   const bar = document.getElementById('searchBar');
   bar.style.display = (bar.style.display === 'none' || !bar.style.display) ? 'flex' : 'none';
@@ -271,7 +279,7 @@ function handleSearch() {
     const labelNodes = card.querySelectorAll('label');
     let userInput = null;
     labelNodes.forEach((lbl) => {
-      if (lbl.textContent.trim().toLowerCase() === 'user') {
+      if (lbl.textContent.trim().toLowerCase() === 'user' || lbl.textContent.trim().toLowerCase() === 'username') {
         const nextInput = lbl.parentElement.querySelector('input');
         if (nextInput) userInput = nextInput;
       }

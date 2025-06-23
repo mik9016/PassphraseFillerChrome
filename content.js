@@ -1,5 +1,3 @@
-import { getCloudUrlFromStorage, ALLOWED_CLOUD_ENVS, extractUsername, detectEnvFromHsServer } from './utils.js';
-
 const fetchTeamAccounts = async () => {
     try {
         const url = await getCloudUrlFromStorage();
@@ -100,22 +98,40 @@ const getPassphraseForMatrixId = async (matrixId) => {
     }
 };
 
-async function updateTeamAccountInCloud(updatedAccounts) {
+chrome.runtime.onMessage.addListener((request) => {
+  if (request.action === "fillDropdowns" && request.passphrase) {
     try {
-        const url = await getCloudUrlFromStorage();
-        await fetch(url, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ team_accounts: updatedAccounts })
-        });
-        return true;
-    } catch (err) {
-        console.error('Failed to update team accounts in cloud', err);
-        return false;
+      fillPassphrase(request.passphrase);
+    } catch (e) {
+      console.error('Error in onMessage fillPassphrase', e);
     }
-}
+  }
+});
 
-const saveNewPassphrase = async (matrixId, newPassphrase) => {
+waitForElement('.mx_Dropdown_input').then(async () => {
+    const matrixId = localStorage.getItem('mx_user_id');
+    const checkObj = await getPassphraseForMatrixId(matrixId);
+    if (checkObj?.response) {
+        fillPassphrase(checkObj?.passphrase);
+    }
+}).catch(() => {});
+
+// Listen for the copy event in the recovery dialog to save new passphrase
+waitForElement('.mx_CreateSecretStorageDialog_recoveryKeyButtons').then(async (element) => {
+    const copyBtn = element.childNodes[element.childNodes.length - 1];
+    const matrixId = localStorage.getItem('mx_user_id');
+    if (copyBtn.innerText === 'Kopieren') {
+        copyBtn.addEventListener('click', () => {
+            setTimeout(() => {
+                navigator.clipboard.readText().then(async (clipboardText) => {
+                    await saveNewPassphrase(matrixId, clipboardText);
+                });
+            }, 10);
+        });
+    }
+}).catch(() => {});
+
+async function saveNewPassphrase(matrixId, newPassphrase) {
     try {
         const userOnly = extractUsername(matrixId);
         const envNow = getEnvForCurrentSession();
@@ -169,35 +185,19 @@ const saveNewPassphrase = async (matrixId, newPassphrase) => {
         console.error('Failed to save new passphrase', e);
         return { response: false };
     }
-};
+}
 
-waitForElement('.mx_Dropdown_input').then(async () => {
-    const matrixId = localStorage.getItem('mx_user_id');
-    const checkObj = await getPassphraseForMatrixId(matrixId);
-    if (checkObj?.response) {
-        fillPassphrase(checkObj?.passphrase);
-    }
-}).catch(() => {});
-
-waitForElement('.mx_CreateSecretStorageDialog_recoveryKeyButtons').then(async (element) => {
-    const copyBtn = element.childNodes[element.childNodes.length - 1];
-    const matrixId = localStorage.getItem('mx_user_id');
-    if (copyBtn.innerText === 'Kopieren') {
-        copyBtn.addEventListener('click', () => {
-            setTimeout(() => {
-                navigator.clipboard.readText().then(async (clipboardText) => {
-                    await saveNewPassphrase(matrixId, clipboardText);
-                });
-            }, 10);
-        });
-    }
-}).catch(() => {});
-
-chrome.runtime.onMessage.addListener(async (request) => {
+async function updateTeamAccountInCloud(updatedAccounts) {
     try {
-        const passphrase = request.passphrase;
-        fillPassphrase(passphrase);
-    } catch (e) {
-       console.error('Error in onMessage fillPassphrase', e);
+        const url = await getCloudUrlFromStorage();
+        await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ team_accounts: updatedAccounts })
+        });
+        return true;
+    } catch (err) {
+        console.error('Failed to update team accounts in cloud', err);
+        return false;
     }
-});
+}

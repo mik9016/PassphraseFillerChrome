@@ -1,14 +1,8 @@
-async function getCloudUrlFromStorage() {
+function getCloudUrlFromStorage() {
     return new Promise((resolve) => {
         chrome.storage.local.get(['cloud_json_url'], (data) => {
             resolve(data.cloud_json_url || undefined);
         });
-    });
-}
-
-async function setCloudUrlInStorage(url) {
-    return new Promise((resolve) => {
-        chrome.storage.local.set({ 'cloud_json_url': url }, () => resolve());
     });
 }
 
@@ -76,11 +70,21 @@ function createCloudCard(card) {
     button.textContent = 'Fill';
     button.className = 'fill-btn';
     button.title = "Fill from Team (Cloud)";
-    button.addEventListener('click', () => {
-        const passphrase = card.pass;
-        chrome.runtime.sendMessage({
-            action: "fillDropdowns",
-            passphrase: passphrase
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            if (tabs.length > 0) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    action: "fillDropdowns",
+                    passphrase: card.pass
+                }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Error sending message:', chrome.runtime.lastError.message);
+                    }
+                });
+            } else {
+                console.error("No active tab found.");
+            }
         });
     });
     form.appendChild(button);
@@ -97,13 +101,3 @@ function createCloudCard(card) {
     accountCart.appendChild(form);
     document.getElementById('wrapper').appendChild(accountCart);
 }
-
-export {
-    getCloudUrlFromStorage,
-    setCloudUrlInStorage,
-    ENV_OPTIONS,
-    ALLOWED_CLOUD_ENVS,
-    extractUsername,
-    detectEnvFromHsServer,
-    createCloudCard
-};
