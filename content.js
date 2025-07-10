@@ -116,7 +116,6 @@ waitForElement('.mx_Dropdown_input').then(async () => {
     }
 }).catch(() => {});
 
-// Listen for the copy event in the recovery dialog to save new passphrase
 waitForElement('.mx_CreateSecretStorageDialog_recoveryKeyButtons').then(async (element) => {
     const copyBtn = element.childNodes[element.childNodes.length - 1];
     const matrixId = localStorage.getItem('mx_user_id');

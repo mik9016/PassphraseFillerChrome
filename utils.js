@@ -101,3 +101,10 @@ function createCloudCard(card) {
     accountCart.appendChild(form);
     document.getElementById('wrapper').appendChild(accountCart);
 }
+
+window.getCloudUrlFromStorage = getCloudUrlFromStorage;
+window.ENV_OPTIONS = ENV_OPTIONS;
+window.ALLOWED_CLOUD_ENVS = ALLOWED_CLOUD_ENVS;
+window.extractUsername = extractUsername;
+window.detectEnvFromHsServer = detectEnvFromHsServer;
+window.createCloudCard = createCloudCard;
