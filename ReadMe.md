@@ -1,42 +1,92 @@
 # Passphrase Filler
 
-Passphrase Filler is a Firefox extension that allows you to securely store and manage your user information, environment details, and passphrases.
-With this extension, you can easily add and remove cards containing your data, ensuring it remains accessible even after closing the browser.
+Passphrase Filler is a Chromium/Firefox extension for securely storing, sharing, and auto-filling test credentials for multiple environments.  
+It supports both **personal** (local) and **team-managed (cloud)** credentials, making it ideal for dev/test teams.
 
-⚠️ **Data is not encrypted. Extension is made for development purposes and should be used mainly for testing with
-fake users.**.
+> **Warning:**  
+> Data is **not encrypted**. This extension is for **test accounts only**. Never store real production credentials.
+
+---
 
 ## Features
 
-- **Storage**: Store user information, environment details, and passphrases in the browser storage.
-  ⚠️ **Data is not encrypted.**
-- **Persistent Data**: Your data persists even after closing the browser.
-- **Manage Cards**: Add and remove cards containing user information.
-- **Autofill**: Add `matrix_id` of the user in `user` field and passphrase will be auto-filled without
-  a need for clicking on `Fill` button.
-- **Autocopy**: On reseting passphrase new passphrase will automatically overwrite old value within extension.
+- **Cloud Team Credentials**  
+  Team-managed credentials are loaded automatically from a shared JSON file in the cloud. Passphrase changes in the cloud appear instantly in every team member’s extension.
 
-## Installation
+- **Secure Filtering**  
+  Only credentials with the environment set to `Staging`, `Integration`, or `Pre Prod` are shared via the cloud.  
+  `Prod` (production) accounts are **never** synced to the cloud, even if accidentally added.
 
-1. Download the extension from the [Passphrase Filler Official website](https://passphrasefiller.mgruszecki.com/) .
-2. Add extension to your chromium browser.
+- **Personal Storage**  
+  Add, edit, and delete your own credentials, which are stored locally in your browser.  
+  Local data is persistent and visible only to you.
 
-## Usage
+- **Autofill**  
+  The extension automatically fills the passphrase when it detects your username and environment on supported pages.
 
-1. Click on the Passphrase Filler icon in the Firefox toolbar.
-2. To add a card, click on the `+` button and fill in the necessary details.
-3. To remove a card, click on the `Trash Icon` button.
+- **Automatic Team Sync**  
+  If you reset a test user’s passphrase, the extension syncs the update to the cloud (unless it’s a `Prod` user).  
+  The most recent update always wins.
 
-## Contributing
+- **Deduplication**  
+  Any local entry that matches a cloud credential (by username + environment, case-insensitive) is removed automatically to avoid duplicates.
 
-Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
+- **Modern UI**  
+  - Clean, responsive, white background.
+  - Cloud entries are read-only, visually distinct, and marked as such.
+  - Manual entries use dropdowns for environment (no misspelling).
+  - Compact font and layout for maximum visibility.
+  - “Fill” button is modern, green, and rounded.
+  - “Remove” button is always at the top right of every card.
 
-1. Fork the repository.
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a pull request.
+- **Case-Insensitive Matching**  
+  Username comparisons are case-insensitive to avoid mismatches.
 
-## License
+---
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Quick Start
+
+1. **Install the Extension**  
+   Add Passphrase Filler to your Chromium or Firefox browser.
+
+2. **Team Credentials**  
+   Team-managed credentials appear automatically as read-only cards.
+
+3. **Add Your Own**  
+   Click the "+" button to add a new credential. Select the environment from the dropdown, enter your username and passphrase.
+
+4. **Autofill**  
+   When logging in on supported pages, the extension will auto-fill the passphrase if your username and environment match.
+
+5. **Reset Passphrase**  
+   When you reset a test user’s passphrase, the extension syncs it to the team cloud file (except for `Prod` users).
+
+---
+
+## Cloud Credential Format
+
+Team credentials are managed in a shared JSON file, for example:
+
+```json
+{
+  "_meta": {
+    "env_accepted_values": [
+      "Staging",
+      "Integration",
+      "Pre Prod"
+    ],
+    "note": "Only these env values are accepted. Others, including 'Prod', are ignored."
+  },
+  "team_accounts": [
+    {
+      "env": "Staging",
+      "user": "alice",
+      "pass": "correct horse battery staple"
+    },
+    {
+      "env": "Integration",
+      "user": "bob",
+      "pass": "yellow banana apple blue"
+    }
+  ]
+}

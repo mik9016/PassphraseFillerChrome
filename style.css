@@ -1,0 +1,293 @@
+html, body {
+  width: 100vw;
+  min-width: 320px;
+  max-width: 400px;
+  margin: 0;
+  padding: 0;
+  background: #f6f8fa;
+  font-family: "Inconsolata", monospace !important;
+  font-size: 13px;
+  color: #232323;
+  overflow-x: hidden;
+}
+h3 {
+  font-family: "Inconsolata", monospace !important;
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 16px 0 12px 0;
+  letter-spacing: 0.7px;
+}
+#wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: stretch;
+  width: 98%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.accountCart {
+  width: 100%;
+  border-radius: 17px;
+  background: #fff;
+  border: 2px solid #e0e6ef;
+  box-shadow: 0 2px 10px 0 #0001;
+  padding: 13px 13px 20px 13px;
+  position: relative;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.cloudCard {
+  border: 2px solid #4088ef;
+  background: #f2f7ff;
+  color: #2166d1;
+}
+.cloudCard label,
+.cloudCard input, .cloudCard select {
+  color: #2166d1 !important;
+}
+.cloudCard input, .cloudCard select {
+  background: #f2f7ff !important;
+  font-weight: 600;
+}
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin-bottom: 11px;
+  width: 100%;
+}
+label {
+  color: #29303b;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  margin-left: 1px;
+  letter-spacing: 0.01em;
+}
+input, select {
+  width: 100%;
+  max-width: 100%;
+  background: #f3f4f6;
+  color: #232323;
+  border: 1px solid #dde3eb;
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 7px 10px;
+  height: 34px;
+  transition: border 0.2s;
+  box-sizing: border-box;
+}
+input:read-only, .cloudCard input, .cloudCard select {
+  background: #f2f7ff !important;
+  color: #2166d1 !important;
+  border: 1px solid #c7dafc !important;
+  font-weight: 600;
+}
+input:focus, select:focus {
+  border: 1.5px solid #3376d1;
+  outline: none;
+  background: #e9f2fe;
+}
+.btn, .fill-btn {
+  font-family: inherit !important;
+  font-size: 1.08rem;
+  font-weight: 700;
+  border-radius: 21px !important;
+  width: 100%;
+  min-width: 80px;
+  padding: 10px 0;
+  margin-top: 8px;
+  background: #43be71;
+  color: #fff;
+  border: none;
+  box-shadow: 0 1px 7px #43be713a;
+  transition: background .17s, box-shadow .18s;
+  margin-bottom: 0;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+.fill-btn:hover, .btn:focus {
+  background: #32995b !important;
+  color: #fff;
+  box-shadow: 0 3px 12px #2c964e38;
+}
+.removeButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 34px;
+  height: 34px;
+  background: #fceeee;
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 2px 8px #d8709342;
+  padding: 0;
+  margin: 0;
+  transition: background 0.13s;
+  cursor: pointer;
+}
+.removeButton:hover {
+  background: #fdb7c5;
+}
+.removeButton svg {
+  width: 18px;
+  height: 18px;
+  color: #fa6464;
+}
+.plus {
+  background: #4088ef;
+  color: #fff;
+  font-size: 1.7rem;
+  width: 49px;
+  height: 49px;
+  border-radius: 50%;
+  border: none;
+  margin: 12px auto 10px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 8px #3376d120;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.plus:hover {
+  background: #224ea6;
+}
+#settingsModal {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1000;
+  width: 90vw;
+  max-width: 360px;
+  min-width: 250px;
+  background: #fff;
+  box-shadow: 0 4px 32px #0002;
+  border-radius: 20px;
+  padding: 24px 16px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+#settingsModal input[type="text"] {
+  width: 100%;
+  margin-bottom: 18px;
+  border-radius: 9px;
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  font-size: 15px;
+}
+#settingsModal .modal-title {
+  font-size: 15px;
+  margin-bottom: 7px;
+  font-weight: 600;
+}
+#settingsModal .modal-buttons {
+  text-align: right;
+}
+#settingsModal .save-btn {
+  background: #317cff;
+  color: #fff;
+  margin-right: 6px;
+}
+#settingsModal .cancel-btn {
+  background: #e9f2f9;
+  color: #333;
+}
+#settingsIcon {
+  position: fixed;
+  top: 10px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  background: #f5f6fa;
+  border-radius: 50%;
+  box-shadow: 0 1px 6px #dae3f4b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.16s, box-shadow 0.16s, transform 0.18s;
+  cursor: pointer;
+  z-index: 10000;
+}
+#settingsIcon svg {
+  width: 20px;
+  height: 20px;
+  fill: #7a879c;
+  transition: fill 0.18s, transform 0.25s;
+}
+#settingsIcon:hover {
+  background: #e6f0fa;
+  box-shadow: 0 2px 12px #317cff33;
+  transform: rotate(20deg) scale(1.08);
+}
+#settingsIcon:hover svg {
+  fill: #317cff;
+  transform: rotate(18deg) scale(1.12);
+}
+#modalOverlay {
+  position: fixed;
+  z-index: 999;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.12);
+  display: block;
+}
+#searchIcon {
+  position: fixed;
+  top: 10px;
+  left: 14px;
+  z-index: 1200;
+  width: 32px;
+  height: 32px;
+  background: #f7fafb;
+  border-radius: 50%;
+  box-shadow: 0 1px 5px #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.16s;
+}
+#searchIcon:hover {
+  background: #e7f0fa;
+}
+
+#searchBar {
+  position: fixed;
+  top: 13px;
+  left: 42px;   /* Leaves room for the icon */
+  z-index: 1199;
+  display: none;  /* Or flex when open */
+  flex-direction: row;
+  align-items: center;
+  background: #fff;
+  box-shadow: 0 2px 12px #bfd5ef47;
+  border-radius: 12px;
+  padding: 5px 8px 5px 12px;
+  min-width: 210px;
+  max-width: 260px;
+  gap: 7px;
+}
+#searchBar input[type="text"] {
+  width: 125px;
+  border-radius: 10px;
+  border: 1.2px solid #b4c0d8;
+  font-size: 13px;
+  padding: 7px 10px;
+  background: #f7fafd;
+  transition: border 0.13s;
+}
+#searchBar input[type="text"]:focus {
+  border: 1.2px solid #43be71;
+  outline: none;
+}
